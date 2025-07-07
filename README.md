@@ -99,6 +99,26 @@ Spring Cloud Data Flow is ideal for event-driven architectures and scalable data
 ## 1. Activity diagagram
 Respecting DDD priciples we start with the activity diagram that repesents the bussiness flow.
 
+![Activity Diagram](/Images/ActivityDiagram.png)
+
+## 2. Persitence level
+Since we also need a persistence layer, a DBMS that supports SQL has been chosen. The properties and the relationships between these entities can be modeled using an entity-relationship diagram.
+
+An entity represents a mutable object: it can change its properties without changing its identity. For example, a Product is an entity: the product is unique and will not change its identity (what uniquely distinguishes it) once it has been established. However, the price, description, and other specific attributes can be changed as often as needed.  
+
+The entities that emerge from an initial analysis of the modeled business flow would be the following:
+- user_data
+- Command
+- Facturare
+- Depozit 
+- Product
+
+![ER Diagram](/Images/ER.png)
+
+## 3. Class Diagram
+According to the domain services identified above, the class diagram is designed to highlight the implementation methods for the business requirements as well.
+
+![Class Diagram](/Images/ClassDiagram.drawio.png)
 
 # Bibliography
 
