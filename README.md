@@ -104,7 +104,39 @@ Respecting DDD priciples we start with the activity diagram that repesents the b
 
 ![Activity Diagram](/Images/ActivityDiagram.png)
 
-## 2. Persistence level
+## 2. Define microservices
+In this step, based on the activity diagram we define de the microservices needed for this application.  
+
+### 1. Client microservice
+This microservice communicates with the user interface. It receives data from the UI and creates a command. It acts as the **source** in the command data flow pipeline.
+
+#### Responsibilities
+
+- **`receiveCommand`**  
+  This method receives data from the graphical user interface via a **RabbitMQ queue**. The user interface writes the necessary data into the queue, and the microservice consumes it in real time.
+
+- **`comandaProdus`**  
+  This method sends the received and processed command to the next microservice in the pipeline using **Kafka**, acting as a producer.
+
+#### Technologies Used
+
+- RabbitMQ (for receiving messages from the UI)
+- Spring Cloud Stream
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Acts as the **entry point** for the auction pipeline.
+- Bridges communication between the UI and the distributed system.
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: Each method handles exactly one concern (input vs. output).
+- **Dependency Inversion Principle**: The microservice depends on **messaging systems** (RabbitMQ, Kafka) rather than tightly coupled modules.
+
+
+
+## 3. Persistence level
 Since we also need a persistence layer, a DBMS that supports SQL has been chosen. The properties and the relationships between these entities can be modeled using an entity-relationship diagram.
 
 An entity represents a mutable object: it can change its properties without changing its identity. For example, a Product is an entity: the product is unique and will not change its identity (what uniquely distinguishes it) once it has been established. However, the price, description, and other specific attributes can be changed as often as needed.  
@@ -118,7 +150,7 @@ The entities that emerge from an initial analysis of the modeled business flow w
 
 ![ER Diagram](/Images/ER.png)
 
-## 3. Class Diagram
+## 4. Class Diagram
 According to the domain services identified above, the class diagram is designed to highlight the implementation methods for the business requirements as well.
 
 ![Class Diagram](/Images/ClassDiagram.drawio.png)
