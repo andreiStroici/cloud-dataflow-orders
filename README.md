@@ -5,7 +5,10 @@
     2. [DDD](#ddd)
     3. [Spring Boot](#spring-boot)
     4. [Spring Cloud Data Flow](#spring-cloud-data-flow)
-3. next
+3. [Steps](#steps)  
+    1. [Activity diagram](#1-activity-diagagram)
+    2. [Persistence level](#2-persistence-level)
+    3. [Class Diagram](#3-class-diagram)
 # Introduction
 
 This project demonstrates the use of **Spring Cloud Data Flow** with **Spring Boot** to simulate the data flow of an online order system.  
@@ -101,7 +104,7 @@ Respecting DDD priciples we start with the activity diagram that repesents the b
 
 ![Activity Diagram](/Images/ActivityDiagram.png)
 
-## 2. Persitence level
+## 2. Persistence level
 Since we also need a persistence layer, a DBMS that supports SQL has been chosen. The properties and the relationships between these entities can be modeled using an entity-relationship diagram.
 
 An entity represents a mutable object: it can change its properties without changing its identity. For example, a Product is an entity: the product is unique and will not change its identity (what uniquely distinguishes it) once it has been established. However, the price, description, and other specific attributes can be changed as often as needed.  
