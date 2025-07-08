@@ -113,10 +113,10 @@ This microservice communicates with the user interface. It receives data from th
 #### Responsibilities
 
 - **`receiveCommand`**  
-  This method receives data from the graphical user interface via a **RabbitMQ queue**. The user interface writes the necessary data into the queue, and the microservice consumes it in real time.
+  This responsability receives data from the graphical user interface via a **RabbitMQ queue**. The user interface writes the necessary data into the queue, and the microservice consumes it in real time.
 
 - **`comandaProdus`**  
-  This method sends the received and processed command to the next microservice in the pipeline using **Kafka**, acting as a producer.
+  This functionality sends the received and processed command to the next microservice in the pipeline using **Kafka**, acting as a producer.
 
 #### Technologies Used
 
@@ -126,15 +126,143 @@ This microservice communicates with the user interface. It receives data from th
 
 #### Architecture Role
 
-- Acts as the **entry point** for the auction pipeline.
+- Acts as the **entry point** for the command pipeline.
 - Bridges communication between the UI and the distributed system.
 
 #### SOLID Principles Applied
 
-- **Single Responsibility Principle**: Each method handles exactly one concern (input vs. output).
-- **Dependency Inversion Principle**: The microservice depends on **messaging systems** (RabbitMQ, Kafka) rather than tightly coupled modules.
+- **Single Responsibility Principle**: The microservice is responsible for a single business capability – handling and forwarding commands. It does not mix unrelated concerns like inventory management or delivery processing.
+- **Interface Segregation Principle**: The microservice exposes only the operations necessary for handling commands.
+- **Inversion of Control**: The microservice delegates external communication (e.g., saving to DB) using message brokers like RabbitMQ instead of direct calls.
 
+### 2. Comanda Microservice
 
+This microservice is responsible for receiving and forwarding command data to the warehouse. The command data is received from the Client microservice.
+
+#### Responsibilities
+
+- **`sendMessage`**  
+  Sends data to be stored in the database. The database is managed by another microservice that will be discussed later.
+
+- **`receiveCommand`**  
+  Receives command data from the client, calls `sendMessage`, and then forwards the data further in the pipeline.
+
+#### Technologies Used
+
+- RabbitMQ (for sending data to the Database Microservice)
+- Spring Cloud Stream
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Acts as a processor in the command pipeline
+- Forwards the command data further in the system
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: The microservice is responsible for a single business capability – handling and forwarding commands. It does not mix unrelated concerns like inventory management or delivery processing.
+- **Interface Segregation Principle**: The microservice exposes only the operations necessary for handling commands.
+- **Inversion of Control**: The microservice delegates external communication (e.g., saving to DB) using message brokers like RabbitMQ instead of direct calls.
+
+### 3. Depozit Microservice
+
+This microservice implements the warehouse logic. It communicates with the Producer Microservice and the DB Microservice. The communication with the DB Microservice is used to monitor commands and product stock. The Producer Microservice represents an external entity that supplies products to the warehouse, based on incoming commands.
+
+#### Responsibilities
+
+- **`sendMessage`**  
+  Sends messages to the DB Microservice and the Producer Microservice.
+
+- **`receiveMessage`**  
+  Receives messages from the DB Microservice and the Producer Microservice.
+
+- **`processCommand`**  
+  Handles command processing. It checks whether the current stock is sufficient to fulfill a command.  
+  - If stock is sufficient, it updates the stock.
+  - If stock is low, it reject the command.
+  - Finally, it forwards the processed command to the next step in the pipeline.
+
+#### Technologies Used
+
+- RabbitMQ (for sending and receiving data to/from the DB Microservice and the Producer Microservice)
+- Spring Cloud Stream
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Acts as a processor in the command pipeline  
+- Manages warehouse stock and supplier communication
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: The microservice is responsible for a single business domain – warehouse operations (including stock checking and supplier coordination). It does not handle unrelated concerns like payment or client management.
+- **Interface Segregation Principle**: The microservice exposes only the operations needed for warehouse logic.
+- **Inversion of Control**: Communication with external systems is decoupled via message brokers (RabbitMQ).
+
+### 4. Facturare microservie
+
+This microservice is responsible for generating the invoice for a command. It receives data from the Depozit microservice, creates the invoice, saves it to the database, and then forwards the command data to the Livrare microservice.
+
+#### Responsibilities
+
+- **`sendMessage`**  
+  Sends messages and requests to the DBMicroservice.
+
+- **`receiveMessage`**  
+  Receives responses from the DBMicroservice for previously sent requests.
+
+- **`generateInvoice`**  
+  Creates the invoice and stores it in the database. After that, it sends the command data to the Livrare microservice.
+
+#### Technologies Used
+
+- RabbitMQ (for sending and receiving data to/from the DBMicroservice)
+- Spring Cloud Stream
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Acts as a billing processor in the command pipeline  
+- Responsible for generating and storing invoices before delivery
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: The microservice is responsible for a single business concern – invoice generation. It does not handle unrelated tasks like stock or delivery management.
+- **Interface Segregation Principle**: Only invoice-related operations are exposed, ensuring minimal and focused APIs.
+- **Inversion of Control**: Communication with external services (e.g., DBMicroservice) is done through asynchronous messaging using RabbitMQ.
+
+### 5. Livrare Microservie
+
+This is the last microservice in the pipeline. This microservice simulates the delivery if the command was successfully completed. If the stock was not sufficient, it displays a message indicating that the command was rejected.
+
+#### Responsibilities
+
+- **`sendMessage`**  
+  Sends a message or request to the DBMicroservice.
+
+- **`receiveMessage`**  
+  Receives a message from the DBMicroservice.
+
+- **`expediereComanda`**  
+  If the command was accepted, it simulates the delivery process by displaying a confirmation message.  
+  If the command was rejected, it displays a message explaining the reason for the rejection.
+
+#### Technologies Used
+
+- RabbitMQ (for sending and receiving data to/from the DBMicroservice)
+- Spring Cloud Stream
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Acts as the final processor in the command pipeline  
+- Responsible for simulating delivery if the command was successful, or showing a rejection message otherwise
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: The microservice handles a single business task – managing the final step of the command, whether it's delivery or rejection.
+- **Interface Segregation Principle**: It exposes only delivery-related operations, keeping its interface clean and focused.
+- **Inversion of Control**: Communication with external systems (e.g., DBMicroservice) is handled through message brokers like RabbitMQ.
 
 ## 3. Persistence level
 Since we also need a persistence layer, a DBMS that supports SQL has been chosen. The properties and the relationships between these entities can be modeled using an entity-relationship diagram.
