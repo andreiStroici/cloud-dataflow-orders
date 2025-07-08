@@ -264,6 +264,75 @@ This is the last microservice in the pipeline. This microservice simulates the d
 - **Interface Segregation Principle**: It exposes only delivery-related operations, keeping its interface clean and focused.
 - **Inversion of Control**: Communication with external systems (e.g., DBMicroservice) is handled through message brokers like RabbitMQ.
 
+### 6. DBMicroservice
+
+This microservice is not a direct step in the command processing pipeline. Its responsibility is to ensure data persistence. It handles reading from and writing to the database, based on messages it receives from other microservices.
+
+#### Responsibilities
+
+- **`sendMessage`**  
+  Sends messages to other microservices when needed.
+
+- **`receiveMessage`**  
+  Receives messages from other microservices with instructions for database operations.
+
+- **`update`**  
+  Updates specific columns in a database table.
+
+- **`insert`**  
+  Inserts data into the database.
+
+- **`read`**  
+  Reads data from a specified table.
+
+#### Technologies Used
+
+- RabbitMQ (for sending and receiving data to/from other microservices)
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Provides partial implementation of CRUD operations through message-based interaction  
+- Ensures persistent storage of all command-related and system data
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: The microservice handles one clear concern — managing database operations.
+- **Interface Segregation Principle**: It exposes only database-related functionality, keeping its interface clean and decoupled.
+- **Inversion of Control**: All interactions with this service are triggered by external messages, following the principles of asynchronous messaging with RabbitMQ.
+
+#### 7. Producer Microservice
+
+This microservice does not directly participate in the main command pipeline. It simulates a producer that manufactures products which are requested by the warehouse (Depozit microservice) to replenish its stock.
+
+#### Responsibilities
+
+- **`sendMessage`**  
+  Sends a message to the Depozit microservice when the products are ready for delivery.
+
+- **`receiveMessage`**  
+  Receives messages from the Depozit microservice. These messages contain the product requests (commands) from the warehouse.
+
+- **`processCommand`**  
+  Simulates the time required to produce the products based on the received request.
+
+#### Technologies Used
+
+- RabbitMQ (for sending and receiving data to/from other microservices)
+- Kotlin / Spring Boot
+
+#### Architecture Role
+
+- Provides products to the warehouse when requested  
+- Acts as a passive participant triggered by warehouse demands
+
+#### SOLID Principles Applied
+
+- **Single Responsibility Principle**: The microservice is responsible for one task — producing products for the warehouse.
+- **Interface Segregation Principle**: It exposes only the necessary operations related to production.
+- **Inversion of Control**: It reacts to external messages (from Depozit microservice) using RabbitMQ instead of direct method calls.
+
+![Microservice Diagram](/Images/microservice.jpg)
 ## 3. Persistence level
 Since we also need a persistence layer, a DBMS that supports SQL has been chosen. The properties and the relationships between these entities can be modeled using an entity-relationship diagram.
 
