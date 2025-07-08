@@ -7,8 +7,16 @@
     4. [Spring Cloud Data Flow](#spring-cloud-data-flow)
 3. [Steps](#steps)  
     1. [Activity diagram](#1-activity-diagagram)
-    2. [Persistence level](#2-persistence-level)
-    3. [Class Diagram](#3-class-diagram)
+    2. [Microservices](#2-define-microservices)
+        1. [Client microservice](#1-client-microservice)
+        2. [Comanda Microservice](#2-comanda-microservice)
+        3. [Depozit Microservice](#3-depozit-microservice)
+        4. [Facturare microservie](#4-facturare-microservie)
+        5. [Livrare Microservie](#5-livrare-microservie)
+        6. [DBMicroservice](#6-dbmicroservice)
+        7. [Producer Microservice](#7-producer-microservice)
+    3. [Persistence level](#3-persistence-level)
+    4. [Class Diagram](#4-class-diagram)
 # Introduction
 
 This project demonstrates the use of **Spring Cloud Data Flow** with **Spring Boot** to simulate the data flow of an online order system.  
