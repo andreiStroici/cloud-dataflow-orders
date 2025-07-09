@@ -28,7 +28,6 @@ It serves as a practical example of building distributed systems using modern cl
 # Technical Overview
 
 ## Micorservices archiecture
-# Microservices Architecture – Technical Overview (Martin Fowler)
 
 **Microservices Architecture (MSA)** is an architectural style that structures an application as a collection of loosely coupled, independently deployable services. Each service is responsible for a distinct business capability and communicates with others using lightweight protocols, typically HTTP or messaging systems.
 
